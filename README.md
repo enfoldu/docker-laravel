@@ -1,19 +1,19 @@
 # docker-laravel
 Docker for local development of a laravel project.
 
-## Install
+# Configure
 
-Cd into your project folder and run `git submodule add https://github.com/enfoldu/docker-laravel.git`.
+### Setup
 
-## Setup
+`cd` into your laravel project folder and run `git submodule add https://github.com/enfoldu/docker-laravel.git`.
 
-Cd into `docker-laravel` folder.
+`cd` into `docker-laravel` folder.
 
 Copy `.env.example` to `.env` in the same directory.
 
 Open up `.env` and edit.
 
-## Run
+### Install
 
 Run `docker-compose up -d` to begin.
 
