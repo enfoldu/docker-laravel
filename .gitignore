@@ -1,2 +1,5 @@
 *.DS_Store
 .env
+
+nginx/logs/nginx-access.log
+nginx/logs/nginx-error.log
