@@ -36,7 +36,7 @@ services:
     build: mysql
     image: mysql:${DB_VERSION}
     volumes:
-      - /var/lib/mysql
+      - ./mysql/data:/var/lib/mysql
       - ./mysql/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
     ports:
       - "13306:${DB_PORT?Missing DB_PORT variable in .env.example}"
