@@ -6,38 +6,47 @@ services:
 
   ### Nginx Container
   nginx:
-    build: nginx
+    build: containers/nginx
     image: nginx:${NG_VERSION}
     ports:
       - "${NG_PORT}:80"
     volumes:
       - ./../:/var/www
 
-      - ./nginx/conf.d/default:/etc/nginx/conf.d/default.conf
+      - ./containers/nginx/config/default:/etc/nginx/conf.d/default.conf
 
-      - ./nginx/logs/nginx-error.log:/var/log/nginx/error.log
-      - ./nginx/logs/nginx-access.log:/var/log/nginx/access.log
+      - ./containers/nginx/config/nginx.conf:/etc/nginx/nginx.conf
+
+#      - ./logs/nginx:/var/log/nginx
     links:
       - php
 
   ### PHP Container
   php:
-    build: php
+    build: containers/php
     image: php:${PHP_VERSION}
     ports:
       - "9000"
     volumes:
       - ./../:/var/www
+
+      - ./containers/php/config/php.ini:/usr/local/etc/php/php.ini
+      - ./containers/php/config/www.conf:/usr/local/etc/php-fpm.d/www.conf
+
+      - ./logs/php:/var/log/php
     links:
       - mysql
 
   ### MySQL Container
   mysql:
-    build: mysql
+    build: containers/mysql
     image: mysql:${DB_VERSION}
     volumes:
-      - ./mysql/data:/var/lib/mysql
-      - ./mysql/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+      - ./containers/mysql/data:/var/lib/mysql
+
+      - ./containers/mysql/config/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+
+      - ./logs/mysql:/var/log/mysql
     ports:
       - "13306:${DB_PORT?Missing DB_PORT variable in .env.example}"
     environment:
@@ -48,7 +57,7 @@ services:
 
   ### Workspace Utilities Container
   workspace:
-    build: workspace
+    build: containers/workspace
     volumes:
       - ./../:/var/www
     links:
