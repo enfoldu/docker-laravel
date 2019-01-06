@@ -49,6 +49,7 @@ services:
       - ./logs/mysql:/var/log/mysql
     ports:
       - "13306:${DB_PORT?Missing DB_PORT variable in .env.example}"
+    command: --max_allowed_packet=1073741824      # Set max_allowed_packet to 256M (or any other value)
     environment:
       MYSQL_DATABASE: ${DB_DATABASE?Missing DB_DATABASE variable in .env}
       MYSQL_USER: ${DB_USERNAME?Missing DB_USERNAME variable in .env}
