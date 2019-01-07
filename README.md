@@ -41,7 +41,9 @@ Point `access_log` to `/var/log/nginx/access.log`
 
 Open `containers/nginx/config/mysqld.cnf`
 
-Uncomment `log-error = /var/log/mysql/error.log`
+Uncomment `log-error = /var/log/mysql/error.log` for errors
+
+Set `general-log` to `ON` for queries
 
 
 
