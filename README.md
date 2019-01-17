@@ -25,6 +25,16 @@ Run `docker-compose -f docker-compose.yml -f docker-compose.local.yml up -d --bu
 
 Run `docker-compose up -d --build`.
 
+### Stop
+
+##### Local
+
+Run `docker-compose -f docker-compose.yml -f docker-compose.local.yml down`.
+
+##### Production
+
+Run `docker-compose down`.
+
 # Commands
 
 `docker ps` to see list of containers.
