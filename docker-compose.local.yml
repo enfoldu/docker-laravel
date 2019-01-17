@@ -1,0 +1,36 @@
+# docker-compose.yml
+
+version: '3'
+
+services:
+
+  ## ================== PHP
+  php:
+    links:
+      - mysql
+
+  ## ================== Workspace
+  workspace:
+    links:
+      - mysql
+
+  ## ================== MySQL
+  mysql:
+    build:
+      context: .
+      dockerfile: containers/mysql/Dockerfile
+      args:
+        version: ${DB_VERSION}
+    container_name: "mysql-${APP_ENV}"
+    ports:
+      - "${DB_EXTERNAL_PORT?Missing DB_PORT variable in .env}:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE?Missing DB_DATABASE variable in .env}
+      MYSQL_USER: ${DB_USERNAME?Missing DB_USERNAME variable in .env}
+      MYSQL_PASSWORD: ${DB_PASSWORD?Missing DB_PASSWORD variable in .env}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD?Missing DB_PASSWORD variable in .env}
+    networks:
+      - network
+    command: ["mysqld"]
+    expose:
+      - 3306

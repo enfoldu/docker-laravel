@@ -1,21 +1,29 @@
 # docker-laravel
-Docker for local development of a laravel project.
+Docker for laravel/lumen
 
 # Configure
 
-### Setup
-
-`cd` into your laravel project folder and run `git submodule add https://github.com/enfoldu/docker-laravel.git`.
-
-`cd` into `docker-laravel` folder.
-
-Copy `.env.example` to `.env` in the same directory.
-
-Open up `.env` and edit.
-
 ### Install
 
-Run `docker-compose up -d` to begin.
+Clone the repo `got clone git@github.com:enfoldu/docker-laravel.git`
+
+`cd` into the folder and add your laravel project into the `application` folder.
+
+### Configure
+
+In the root `docker-laravel` folder copy `.env.example` to `.env`.
+
+Open `.env` and edit the contents.
+
+### Run
+
+##### Local
+
+Run `docker-compose -f docker-compose.yml -f docker-compose.local.yml up -d --build`.
+
+##### Production
+
+Run `docker-compose up -d --build`.
 
 # Commands
 
@@ -25,25 +33,7 @@ Run `docker-compose up -d` to begin.
 
 # Logs
 
-By default logs are using stdout. You can view logs with docker `docker logs -f <container_name>`.
-
-If you want logs writing to a file instead of using docker logs (these log files can be found in /logs folder):
-
-### NGINX
-
-Open `containers/nginx/config/nginx.conf` 
-
-Point `error_log` to `/var/log/nginx/error.log` 
-
-Point `access_log` to `/var/log/nginx/access.log`
-
-### MySQL
-
-Open `containers/nginx/config/mysqld.cnf`
-
-Uncomment `log-error = /var/log/mysql/error.log` for errors
-
-Set `general-log` to `ON` for queries
+You can view logs with docker `docker logs -f <container_name>`.
 
 
 

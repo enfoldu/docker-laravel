@@ -1,5 +1,12 @@
 FROM phusion/baseimage:latest
 
+ARG version
+ARG working_dir
+
+ADD ./application /var/www
+
+ADD ./.env ${working_dir}
+
 RUN apt-get clean && apt-get update && apt-get install -y locales
 
 RUN DEBIAN_FRONTEND=noninteractive
@@ -52,7 +59,7 @@ RUN apt-get install -y nodejs
 
 RUN echo "INSTALL: MySQL"
 
-# Install MySQL Client
+# Install MySQL Company
 RUN apt-get install -y \
     mysql-client
 
@@ -63,13 +70,13 @@ RUN apt-get install -y \
 # Clean up, to free some space
 RUN apt-get clean
 
-ADD config/functions.sh /bin/mysql_import
+ADD ./containers/workspace/config/functions.sh /bin/mysql_import
 #RUN echo '#! /bin/sh'                >> /bin/mycommand
 #RUN echo 'echo "running mycommand!"' >> /bin/mycommand
 RUN chmod u+x /bin/mysql_import
 
 # Functions script
-#ADD config/functions.sh /usr/local/sbin/functions.sh
+#ADD ./containers/workspace/config/functions.sh /usr/local/sbin/functions.sh
 #RUN echo "source /usr/local/sbin/functions.sh" >> ~/.bashrc
 
 # Add an alias for PHPUnit
@@ -89,10 +96,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
 # Init script
-ADD config/init.sh /sbin/init.sh
+ADD ./containers/workspace/config/init.sh /sbin/init.sh
 RUN chmod +x /sbin/init.sh
 
 # Run init script
 CMD ["/sbin/init.sh"]
-
-WORKDIR /var/www
