@@ -1,11 +1,6 @@
 FROM phusion/baseimage:latest
 
-ARG version
-ARG working_dir
-
-ADD ./application /var/www
-
-ADD ./.env ${working_dir}
+ARG version_php
 
 RUN apt-get clean && apt-get update && apt-get install -y locales
 
@@ -25,22 +20,22 @@ RUN echo "INSTALL: software-properties-common"
 RUN apt-get install -y \
     software-properties-common
 
-RUN echo "INSTALL: PHP"
+RUN echo "INSTALL: PHP ${version_php}"
 
 # Add the "PHP 7" ppa
 RUN add-apt-repository -y \
     ppa:ondrej/php
 
-# Install PHP-CLI 7.2, some PHP extentions and some useful Tools with APT
+# Install PHP-CLI, some PHP extentions and some useful Tools with APT
 RUN apt-get update && apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages  \
-        php7.2-cli \
-        php7.2-common \
-        php7.2-curl \
-        php7.2-json \
-        php7.2-xml \
-        php7.2-mbstring \
-        php7.2-mysql \
-        php7.2-zip \
+        php${version_php}-cli \
+        php${version_php}-common \
+        php${version_php}-curl \
+        php${version_php}-json \
+        php${version_php}-xml \
+        php${version_php}-mbstring \
+        php${version_php}-mysql \
+        php${version_php}-zip \
         php-memcached \
         php-xdebug \
         git \
@@ -70,10 +65,10 @@ RUN apt-get install -y \
 # Clean up, to free some space
 RUN apt-get clean
 
-ADD ./containers/workspace/config/functions.sh /bin/mysql_import
+#ADD ./containers/workspace/config/functions.sh /bin/mysql_import
 #RUN echo '#! /bin/sh'                >> /bin/mycommand
 #RUN echo 'echo "running mycommand!"' >> /bin/mycommand
-RUN chmod u+x /bin/mysql_import
+#RUN chmod u+x /bin/mysql_import
 
 # Functions script
 #ADD ./containers/workspace/config/functions.sh /usr/local/sbin/functions.sh
