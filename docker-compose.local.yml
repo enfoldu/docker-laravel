@@ -3,15 +3,13 @@
 version: '3.7'
 
 volumes:
-  db_data:
+  data:
     driver: local
-    name: "volume-${APP_ENV}-${APP_NAME}-${APP_VERSION}"
 
 services:
 
   ## ================== DATABASE
   database:
-    image: "database-${APP_ENV}-${APP_NAME}-${APP_VERSION}"
     build:
       context: .
       dockerfile: ./containers/${DB_DRIVER}/Dockerfile
@@ -21,41 +19,37 @@ services:
         db_user: ${DB_USERNAME?Missing DB_USERNAME variable in .env}
         db_password: ${DB_PASSWORD?Missing DB_PASSWORD variable in .env}
         db_root_password: ${DB_PASSWORD?Missing DB_PASSWORD variable in .env}
-    container_name: "database-${APP_ENV}-${APP_NAME}-${APP_VERSION}"
+        db_external_port: ${DB_EXTERNAL_PORT?Missing DB_EXTERNAL_PORT variable in .env}
+        db_storage: ${DB_STORAGE_PATH?Missing DB_STORAGE_PATH variable in .env}
     volumes:
-      - db_data:${DB_STORAGE_PATH}
+      - data:${DB_STORAGE_PATH}
     ports:
-      - "${DB_EXTERNAL_PORT?Missing DB_PORT variable in .env}:3306"
+      - "${DB_EXTERNAL_PORT?Missing DB_EXTERNAL_PORT variable in .env}:${DB_PORT?Missing DB_PORT variable in .env}"
     networks:
       - network
-    expose:
-      - ${DB_EXTERNAL_PORT?Missing DB_EXTERNAL_PORT variable in .env}
 
   ## ================== APP
   app:
     volumes:
       - ./application:${WORKING_DIR}
-      - ./containers/app/config/php.ini:/usr/local/etc/php/php.ini
-      - ./containers/app/config/www.conf:/usr/local/etc/php-fpm.d/www.conf
+#      - ./containers/app/config/php.ini:/usr/local/etc/php/php.ini
+#      - ./containers/app/config/www.conf:/usr/local/etc/php-fpm.d/www.conf
     links:
       - database
 
   ## ================== SERVER
   server:
     volumes:
-      - ./containers/nginx/config/default.conf:/etc/nginx/conf.d/default.conf
       - ./containers/nginx/config/nginx.conf:/etc/nginx/nginx.conf
 
   ## ================== WORKSPACE
   workspace:
-    image: "workspace-${APP_ENV}-${APP_NAME}-${APP_VERSION}"
     build:
       context: .
       dockerfile: ./containers/workspace/Dockerfile
       args:
         version: ${PHP_VERSION}
         working_dir: ${WORKING_DIR}
-    container_name: "workspace-${APP_ENV}-${APP_NAME}-${APP_VERSION}"
     volumes:
       - ./application:${WORKING_DIR}
       - ./.env:${WORKING_DIR}/.env

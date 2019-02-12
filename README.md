@@ -57,6 +57,6 @@ Envoronment | Description | Environments
 
 `docker ps` to see list of containers.
 
-`docker exec -it <name_of_container> bash` to ssh into container.
+`docker exec -it <name_of_container> <bash> <sh>` to ssh into container.
 
 `docker logs -f <container_name>` to view logs.

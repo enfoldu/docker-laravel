@@ -5,13 +5,11 @@ version: '3.7'
 networks:
   network:
     driver: bridge
-    name: "network-${APP_ENV}-${APP_NAME}-${APP_VERSION}"
 
 services:
 
   ## ================== APP
   app:
-    image: "app-${APP_ENV}-${APP_NAME}-${APP_VERSION}"
     build:
       context: .
       dockerfile: ./containers/app/Dockerfile
@@ -19,26 +17,30 @@ services:
         version_php: ${PHP_VERSION}
         version_tag: ${PHP_VERSION}${PHP_TAG}
         working_dir: ${WORKING_DIR}
-    container_name: "app-${APP_ENV}-${APP_NAME}-${APP_VERSION}"
+        php_port: ${PHP_PORT}
+        max_file_size: ${MAX_FILE_SIZE_UPLOAD}
     ports:
-      - ${PHP_EXTERNAL_PORT}
+      - ${PHP_PORT}
     networks:
       - network
     working_dir: ${WORKING_DIR}
 
   ## ================== SERVER
   server:
-    image: "server-${APP_ENV}-${APP_NAME}-${APP_VERSION}"
     build:
       context: .
       dockerfile: ./containers/nginx/Dockerfile
       args:
         version_tag: ${NGINX_VERSION}${NGINX_TAG}
-    container_name: "server-${APP_ENV}-${APP_NAME}-${APP_VERSION}"
+        nginx_port: ${NGINX_PORT}
+        working_dir: ${WORKING_DIR}
+        php_port: ${PHP_PORT}
+        php_container: "app"
+        max_file_size: ${MAX_FILE_SIZE_UPLOAD}
     restart: unless-stopped
     tty: true
     ports:
-      - "${NGINX_EXTERNAL_PORT}:80"
+      - "${NGINX_EXTERNAL_PORT}:${NGINX_PORT}"
     networks:
       - network
     working_dir: /etc/nginx

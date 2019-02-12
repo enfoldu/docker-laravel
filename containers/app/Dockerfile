@@ -1,42 +1,55 @@
 ARG version_tag
 FROM php:${version_tag}
 
-ADD ./containers/app/config/php.ini /usr/local/etc/php/php.ini
-ADD ./containers/app/config/www.conf /usr/local/etc/php-fpm.d/www.conf
-
-#ARG version_php
+ARG working_dir
+ARG php_port
+ARG max_file_size
 
 # Update packages and install composer and PHP dependencies.
-RUN apt-get clean \
-    && apt-get update \
-    && apt-get install -y locales mysql-client \
+#RUN set -ex \
+#    apk add --no-cache --virtual .build-deps \
+#    libfreetype6-dev \
+#    libjpeg62-turbo-dev \
+#    libpng-dev \
+#    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+#    && docker-php-ext-install -j$(nproc) gd \
+#    && docker-php-ext-install pdo_mysql mbstring
+
+RUN set -ex \
+    && apk add --no-cache --virtual .build-deps \
+#		libfreetype6-dev \
+#		libjpeg62-turbo-dev \
+#		libmcrypt-dev \
+#		libpng12-dev \
+		freetype-dev \
+        libjpeg-turbo-dev \
+        libpng-dev \
+#	&& docker-php-ext-install -j$(nproc) iconv \
     && docker-php-ext-install pdo_mysql \
-    && pecl channel-update pecl.php.net \
-    && pecl install apcu
+	&& docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+	&& docker-php-ext-install -j$(nproc) gd
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+#RUN set -ex \
+#    && apk add --no-cache --virtual .build-deps \
+#    freetype-dev \
+#    libjpeg-turbo-dev \
+#    libpng-dev \
+#\
+#    && docker-php-ext-configure gd \
+#        --with-freetype-dir=/usr \
+#        --with-png-dir=/usr \
+#        --with-jpeg-dir=/usr \
+#    && docker-php-ext-install pdo_mysql gd \
+#    && docker-php-ext-enable gd \
+#    && apk del .build-deps
 
-ARG working_dir
-ADD ./application ${working_dir}
+COPY --chown=www-data ./application ${working_dir}
+COPY --chown=www-data ./.env ${working_dir}/.env
 
-COPY ./.env ${working_dir}/.env
+# TODO:: This needs to be env specific.
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" \
+    && sed -i "s|upload_max_filesize = 2M|upload_max_filesize = ${max_file_size}|g" $PHP_INI_DIR/php.ini \
+    && sed -i "s|post_max_size = 8M|post_max_size = ${max_file_size}|g" $PHP_INI_DIR/php.ini
 
-#RUN touch storage/logs/laravel.log
-
-# Add an alias for PHPUnit
-RUN echo "alias phpunit='./vendor/bin/phpunit'" >> ~/.bashrc
-
-RUN composer install -d ${working_dir}
-#RUN php artisan cache:clear
-#RUN php artisan view:clear
-#RUN php artisan route:cache
-
-RUN chmod -R 777 ${working_dir}/storage
-
-#RUN touch /var/log/cron.log
-#
-#ADD deploy/cron/artisan-schedule-run /etc/cron.d/artisan-schedule-run
-#RUN chmod 0644 /etc/cron.d/artisan-schedule-run
-#RUN chmod +x /etc/cron.d/artisan-schedule-run
-#RUN touch /var/log/cron.log
+# Set variables.
+RUN sed -i "s|9000|${php_port}|g" /usr/local/etc/php-fpm.d/zz-docker.conf
