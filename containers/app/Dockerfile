@@ -27,7 +27,9 @@ RUN set -ex \
 #	&& docker-php-ext-install -j$(nproc) iconv \
     && docker-php-ext-install pdo_mysql \
 	&& docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-	&& docker-php-ext-install -j$(nproc) gd
+	&& docker-php-ext-install -j$(nproc) gd \
+	&& docker-php-ext-install exif \
+    && docker-php-ext-enable exif
 
 #RUN set -ex \
 #    && apk add --no-cache --virtual .build-deps \
@@ -49,7 +51,8 @@ COPY --chown=www-data ./.env ${working_dir}/.env
 # TODO:: This needs to be env specific.
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" \
     && sed -i "s|upload_max_filesize = 2M|upload_max_filesize = ${max_file_size}|g" $PHP_INI_DIR/php.ini \
-    && sed -i "s|post_max_size = 8M|post_max_size = ${max_file_size}|g" $PHP_INI_DIR/php.ini
+    && sed -i "s|post_max_size = 8M|post_max_size = ${max_file_size}|g" $PHP_INI_DIR/php.ini \
+    && sed -i "s|memory_limit = 128M|memory_limit = ${max_file_size}|g" $PHP_INI_DIR/php.ini
 
 # Set variables.
 RUN sed -i "s|9000|${php_port}|g" /usr/local/etc/php-fpm.d/zz-docker.conf
